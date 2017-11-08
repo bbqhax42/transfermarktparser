@@ -129,7 +129,7 @@ public class Gui extends Application {
         hbTopUserNameTextField = new TextField();
         hbTopUserNameTextField.setMaxWidth(120);
         hbTopUserNameTextField.setPromptText("User");
-        hbTopUserNameTextField.setText("brotkatenils");
+        //hbTopUserNameTextField.setText("brotkatenils");
         final BooleanProperty firstTime = new SimpleBooleanProperty(true); // Variable to store the focus on stage load
 
         //removes default focus from hbTopUserNameTextField
@@ -143,7 +143,7 @@ public class Gui extends Application {
         hbTopPasswordField = new PasswordField();
         hbTopPasswordField.setMaxWidth(120);
         hbTopPasswordField.setPromptText("Password");
-        hbTopPasswordField.setText("dertollenils");
+        //hbTopPasswordField.setText("dertollenils");
 
 
         hbTopLoginButton = new Button("Login");

@@ -234,6 +234,7 @@ public class PlayerTM implements Serializable {
     }
 
 
+
     @Override
     public String toString() {
         return posString() + " " + nameString() + " "+ agepowerString() + " " + eptpawpString() + " " + bidString();
