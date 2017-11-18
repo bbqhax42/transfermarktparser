@@ -81,19 +81,22 @@ public class Gui extends Application {
     @Override
     public void start(Stage stage) {
         stage.setTitle("Transfermarket Parser");
+
+
+        TabPane layout = new TabPane();
+        Tab tab1= new Tab("Main");
+        layout.getTabs().add(tab1);
         bp = new BorderPane();
-        bp.setPadding(new Insets(10, 20, 10, 20));
-        Scene scene = new Scene(bp);
+        tab1.setContent(bp);
+        Tab tab2= new Tab("Settings");
+        layout.getTabs().add(tab2);
+
+
         bp.setTop(hbTop);
         initHBoxTop();
 
-        Screen screen = Screen.getPrimary();
-        Rectangle2D bounds = screen.getVisualBounds();
-
-        stage.setX(bounds.getMinX());
-        stage.setY(bounds.getMinY());
-        stage.setWidth(bounds.getWidth());
-        stage.setHeight(bounds.getHeight() - 50);
+        Rectangle2D bounds = Screen.getPrimary().getBounds();
+        Scene scene = new Scene(layout, bounds.getWidth(), (bounds.getHeight()-70));
 
         stage.setScene(scene);
         stage.show();
