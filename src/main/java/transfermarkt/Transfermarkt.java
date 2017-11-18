@@ -48,10 +48,10 @@ public class Transfermarkt implements Runnable{
     final int maxPower30 = 24; //Maximum power for age 30
     private ObservableList<PlayerTM> data;
     private PlayerListContainer container = PlayerListContainer.instance();
-    Button button;
+    Button button, button2;
 
 
-    public Transfermarkt(Map<String, String> loginCookies, int minAge, int maxAge, int minPower, int maxPower, String userAgent, ObservableList<PlayerTM> data, Button button) {
+    public Transfermarkt(Map<String, String> loginCookies, int minAge, int maxAge, int minPower, int maxPower, String userAgent, ObservableList<PlayerTM> data, Button button, Button button2) {
         this.loginCookies=loginCookies;
         this.minAge=minAge;
         this.maxAge=maxAge;
@@ -61,11 +61,13 @@ public class Transfermarkt implements Runnable{
         this.data=data;
         container.clear();
         this.button=button;
+        this.button2=button2;
     }
 
     @Override
     public void run() {
         button.setDisable(true);
+        button2.setDisable(true);
         try {
             parsePlaydayAndSeason();
 
@@ -326,7 +328,7 @@ public class Transfermarkt implements Runnable{
         }
 
     button.setDisable(false);
-
+    button2.setDisable(false);
     }
 
     private void parsePlaydayAndSeason() throws IOException {

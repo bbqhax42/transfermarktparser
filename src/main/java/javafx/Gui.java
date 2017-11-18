@@ -19,6 +19,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -28,6 +29,9 @@ import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import transfermarkt.PlayerTM;
@@ -58,7 +62,7 @@ public class Gui extends Application {
             profile2_ep, profile2_tp, profile2_ep_days, profile2_tp_days, profile2_ep_tu, profile2_tp_tl, profile3_ep, profile3_tp, profile3_ep_days, profile3_tp_days, profile3_ep_tu, profile3_tp_tl;
     private CheckBox vboxLeftPosAll, vboxLeftPosTW, vboxLeftPosLIB, vboxLeftPosLV, vboxLeftPosLMD, vboxLeftPosRMD, vboxLeftPosRV, vboxLeftPosVS, vboxLeftPosLM,
             vboxLeftPosDM, vboxLeftPosZM, vboxLeftPosRM, vboxLeftPosLS, vboxLeftPosMS, vboxLeftPosRS;
-    private Button vboxLeftFilterButton, vboxLeftParseButton;
+    private Button vboxLeftFilterButton, vboxLeftParseButton, vboxLeftExcelButton;
 
 
     private Group grp;
@@ -297,7 +301,7 @@ public class Gui extends Application {
                     return false;
                 });
                 table.refresh();
-                }
+            }
         }));
 
         vboxLeftParseButton = new Button("Parse!");
@@ -307,12 +311,26 @@ public class Gui extends Application {
             public void handle(ActionEvent e) {
                 verifyTextFields();
                 Thread t = new Thread(new Transfermarkt(loginCookies, Integer.parseInt(vboxLeftAgeMin.getText()), Integer.parseInt(vboxLeftAgeMax.getText()),
-                        Integer.parseInt(vboxLeftPowerMin.getText()), Integer.parseInt(vboxLeftPowerMax.getText()), userAgent, data, vboxLeftParseButton), "My Thread");
+                        Integer.parseInt(vboxLeftPowerMin.getText()), Integer.parseInt(vboxLeftPowerMax.getText()), userAgent, data, vboxLeftParseButton, vboxLeftExcelButton), "My Thread");
                 System.out.println("Parsethread started...");
                 t.start();
 
             }
         });
+
+
+        vboxLeftExcelButton = new Button("Excel!");
+
+        vboxLeftExcelButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                if (sortedData.size() > 0) {
+                    saveSortedDataToExcel();
+                } else System.out.println("filtered data empty");
+
+            }
+        });
+
 
         VBox vBoxProfile1 = new VBox();
         VBox vBoxProfile2 = new VBox();
@@ -323,11 +341,95 @@ public class Gui extends Application {
         HBox hBoxLeftButtons = new HBox();
         hBoxLeftButtons.getChildren().add(vboxLeftFilterButton);
         hBoxLeftButtons.getChildren().add(vboxLeftParseButton);
+        hBoxLeftButtons.getChildren().add(vboxLeftExcelButton);
         vboxLeft.getChildren().addAll(vboxLeftTitle, flowPanePosition, vBoxTextFields, hBoxLeftButtons, vBoxProfile1, vBoxProfile2, vBoxProfile3);
         vboxLeft.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
         vboxLeft.setMaxWidth(222);
         vboxLeft.setSpacing(10);
         vboxLeft.setPadding(new Insets(20, 2, 2, 2));
+
+    }
+
+    private void saveSortedDataToExcel() {
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet("Table Content");
+
+        sheet.setColumnWidth(0, 8 * 256);
+        sheet.setColumnWidth(1, 5 * 256);
+        sheet.setColumnWidth(2, 8 * 256);
+        sheet.setColumnWidth(3, 8 * 256);
+        sheet.setColumnWidth(4, 8 * 256);
+        sheet.setColumnWidth(5, 8 * 256);
+        sheet.setColumnWidth(6, 12 * 256);
+        sheet.setColumnWidth(7, 20 * 256);
+        sheet.setColumnWidth(8, 20 * 256);
+
+        Row row = sheet.createRow((short) 0);
+        row.createCell(0).setCellValue("Pos");
+        row.createCell(1).setCellValue("Age");
+        row.createCell(2).setCellValue("Power");
+        row.createCell(3).setCellValue("Ep");
+        row.createCell(4).setCellValue("Tp");
+        row.createCell(5).setCellValue("Awp");
+        row.createCell(6).setCellValue("Bid");
+        row.createCell(7).setCellValue("Name");
+        row.createCell(8).setCellValue("Link");
+
+        CellStyle styleMoney = wb.createCellStyle();
+        CellStyle styleNumber = wb.createCellStyle();
+        DataFormat format = wb.createDataFormat();
+        styleMoney.setDataFormat(format.getFormat("_-* #,## \\€_-;-* #,## \\€_-;_-* \"-\"?? \\€_-;_-@_-"));
+        styleNumber.setDataFormat(format.getFormat("#,##0"));
+
+
+        for (int i = 0; i < sortedData.size(); i++) {
+            PlayerTM tmpPlayer=sortedData.get(i);
+            row = sheet.createRow(i+2);
+
+
+            Cell cell = row.createCell
+                    (0);
+            cell.setCellValue(tmpPlayer.getPos());
+
+            cell = row.createCell(1);
+            cell.setCellValue(tmpPlayer.getAge());
+
+            cell = row.createCell(2);
+            cell.setCellValue(tmpPlayer.getPower());
+
+            cell = row.createCell(3);
+            cell.setCellValue(tmpPlayer.getEp());
+            cell.setCellStyle(styleNumber);
+
+            cell = row.createCell(4);
+            cell.setCellValue(tmpPlayer.getTp());
+            cell.setCellStyle(styleNumber);
+
+            cell = row.createCell(5);
+            cell.setCellValue(tmpPlayer.getAwp());
+            cell.setCellStyle(styleNumber);
+
+            cell = row.createCell(6);
+            cell.setCellValue(tmpPlayer.getBid());
+            cell.setCellStyle(styleMoney);
+
+            cell = row.createCell(7);
+            cell.setCellValue(tmpPlayer.getName());
+
+            cell = row.createCell(8);
+            cell.setCellValue(tmpPlayer.getHyperlink().getText());
+        }
+        for (int j = 0; j < 11; j++) {
+            sheet.autoSizeColumn(j, false);
+        }
+
+        try {
+            FileOutputStream fileOut = new FileOutputStream("workbook.xlsx");
+            wb.write(fileOut);
+            fileOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
